@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, height=600, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>测量系统界面</title>
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #f5f5f5;
+            --accent-color: #2196F3;
+            --text-color: #333333;
+            --highlight-color: #FF9800;
+            --success-color: #4CAF50;
+            --danger-color: #F44336;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --border-color: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: var(--primary-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 1024px;
+            height: 600px;
+            overflow: hidden;
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" stroke="rgba(0,0,0,0.03)" stroke-width="1" x="0" y="0" width="100" height="100"/></svg>');
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        /* 主容器样式 */
+        .dashboard {
+            width: 960px;
+            height: 540px;
+            padding: 20px;
+            background-color: var(--primary-color);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        /* 功能区域 */
+        .function-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        /* 功能卡片 */
+        .function-card {
+            position: relative;
+            background: var(--secondary-color);
+            border-radius: 12px;
+            padding: 20px;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        .function-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .function-card:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .function-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+        
+        .function-card:hover::before {
+            height: 8px;
+        }
+        
+        .function-card.absorbance::before { background: var(--accent-color); }
+        .function-card.transmittance::before { background: var(--highlight-color); }
+        .function-card.quantitative::before { background: var(--success-color); }
+        .function-card.settings::before { background: var(--danger-color); }
+        
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .function-card:hover .icon {
+            transform: scale(1.1);
+        }
+        
+        .absorbance .icon { color: var(--accent-color); }
+        .transmittance .icon { color: var(--highlight-color); }
+        .quantitative .icon { color: var(--success-color); }
+        .settings .icon { color: var(--danger-color); }
+        
+        .function-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .function-card:hover .function-name {
+            transform: scale(1.05);
+        }
+        
+        /* 响应式设计 - 针对1024*600尺寸优化 */
+        @media (max-width: 1024px) {
+            body {
+                width: 1024px;
+                height: 600px;
+            }
+            
+            .dashboard {
+                width: 960px;
+                height: 540px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 0.9rem;
+            }
+            
+            .function-name {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* 添加动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .function-card:hover .icon {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: rgba(0, 0, 0, 0.6);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: var(--success-color);
+        }
+    </style>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>光学测量系统</h1>
+            <p>选择以下功能进行操作</p>
+        </div>
+        
+        <div class="function-grid">
+            <!-- 吸光度功能 -->
+            <div class="function-card absorbance" id="absorbance">
+                <div class="icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="function-name">吸光度测量</div>
+            </div>
+            
+            <!-- 透过率功能 -->
+            <div class="function-card transmittance" id="transmittance">
+                <div class="icon">
+                    <i class="fas fa-filter"></i>
+                </div>
+                <div class="function-name">透过率测量</div>
+            </div>
+            
+            <!-- 定量测量功能 -->
+            <div class="function-card quantitative" id="quantitative">
+                <div class="icon">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <div class="function-name">定量分析</div>
+            </div>
+            
+            <!-- 系统设置功能 -->
+            <div class="function-card settings" id="settings">
+                <div class="icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="function-name">系统设置</div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>系统状态: 正常运行</span>
+            </div>
+            <div class="status-item">
+                <span>版本: v2.1.0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 为功能卡片添加点击事件
+        document.getElementById('absorbance').addEventListener('click', function() {
+            // 吸光度功能的跳转或处理逻辑
+            console.log('吸光度测量功能被点击');
+            // 这里可以添加页面跳转或其他操作
+            // window.location.href = 'absorbance.html';
+        });
+        
+        document.getElementById('transmittance').addEventListener('click', function() {
+            // 透过率功能的跳转或处理逻辑
+            console.log('透过率测量功能被点击');
+            // window.location.href = 'transmittance.html';
+        });
+        
+        document.getElementById('quantitative').addEventListener('click', function() {
+            // 定量测量功能的跳转或处理逻辑
+            console.log('定量分析功能被点击');
+            // window.location.href = 'quantitative.html';
+        });
+        
+        document.getElementById('settings').addEventListener('click', function() {
+            // 系统设置功能的跳转或处理逻辑
+            console.log('系统设置功能被点击');
+            // window.location.href = 'settings.html';
+        });
+        
+        // 添加卡片点击动画效果
+        const cards = document.querySelectorAll('.function-card');
+        cards.forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

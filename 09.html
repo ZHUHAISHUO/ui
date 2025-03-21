@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, height=600, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>时间设置</title>
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #f5f5f5;
+            --accent-color: #2196F3;
+            --text-color: #333333;
+            --highlight-color: #FF9800;
+            --success-color: #4CAF50;
+            --danger-color: #F44336;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --border-color: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: var(--primary-color);
+            color: var(--text-color);
+            width: 1024px; /* 修改为1024px */
+            height: 600px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 10px; /* 减小内边距 */
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* 返回按钮样式 */
+        .back-button {
+            position: absolute;
+            top: 10px; /* 调整位置 */
+            left: 10px;
+            background: var(--secondary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            z-index: 10;
+        }
+        
+        .back-button:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* 时间显示区域 */
+        .time-display {
+            background: var(--secondary-color);
+            padding: 15px; /* 减小内边距 */
+            border-radius: 10px;
+            margin: 50px auto 20px; /* 调整外边距 */
+            box-shadow: var(--shadow);
+            width: 95%; /* 增加宽度占比 */
+            max-width: 980px; /* 调整最大宽度 */
+        }
+
+        .time-display h2 {
+            font-size: 18px;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .current-time {
+            font-size: 24px;
+            color: var(--accent-color);
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 时间设置区域 */
+        .time-setting {
+            background: var(--secondary-color);
+            padding: 15px; /* 减小内边距 */
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 95%; /* 增加宽度占比 */
+            max-width: 980px; /* 调整最大宽度 */
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* 减小间距 */
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .time-inputs input {
+            width: 75px; /* 稍微减小宽度 */
+            height: 40px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: white;
+        }
+
+        .time-inputs select {
+            width: 95px; /* 稍微减小宽度 */
+            height: 40px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: white;
+            padding: 0 8px;
+        }
+
+        .time-inputs span {
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 4px; /* 减小间距 */
+        }
+
+        /* 设置按钮 */
+        .set-btn {
+            float: right;
+            padding: 10px 30px;
+            font-size: 18px;
+            color: white;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .set-btn:hover {
+            background: var(--highlight-color);
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" id="back-button">←</button>
+    <div class="time-display">
+        <h2>当前系统时间</h2>
+        <div class="current-time" id="currentTime">2023-01-01 00:00:00 星期日</div>
+    </div>
+    <div class="time-setting">
+        <h2>设置时间</h2>
+        <div class="time-inputs">
+            <div class="input-group">
+                <input type="number" id="year" placeholder="年" min="2000" max="2099">
+                <span>年</span>
+            </div>
+            <div class="input-group">
+                <input type="number" id="month" placeholder="月" min="1" max="12">
+                <span>月</span>
+            </div>
+            <div class="input-group">
+                <input type="number" id="day" placeholder="日" min="1" max="31">
+                <span>日</span>
+            </div>
+            <div class="input-group">
+                <input type="number" id="hours" placeholder="时" min="0" max="23">
+                <span>时</span>
+            </div>
+            <div class="input-group">
+                <input type="number" id="minutes" placeholder="分" min="0" max="59">
+                <span>分</span>
+            </div>
+            <div class="input-group">
+                <input type="number" id="seconds" placeholder="秒" min="0" max="59">
+                <span>秒</span>
+            </div>
+            <div class="input-group">
+                <select id="weekday">
+                    <option value="0">星期日</option>
+                    <option value="1">星期一</option>
+                    <option value="2">星期二</option>
+                    <option value="3">星期三</option>
+                    <option value="4">星期四</option>
+                    <option value="5">星期五</option>
+                    <option value="6">星期六</option>
+                </select>
+            </div>
+        </div>
+        <button class="set-btn" onclick="setDateTime()">设置</button>
+    </div>
+
+    <script>
+        // 更新当前时间显示
+        function updateCurrentTime() {
+            const now = new Date();
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')} ${weekdays[now.getDay()]}`;
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+
+        // 初始化时间显示
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+
+        // 设置日期时间
+        function setDateTime() {
+            // 在实际应用中这里需要调用系统API来设置时间
+            alert('时间设置功能已触发');
+        }
+
+        // 返回按钮功能
+        document.getElementById('back-button').addEventListener('click', function() {
+            // 返回到主页面
+            window.location.href = '07.html';
+        });
+    </script>
+</body>
+</html>

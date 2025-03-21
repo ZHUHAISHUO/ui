@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吸光度测量界面</title>
+    <style>
+        /* 全局样式 - 保持与01.html一致 */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --text-color: #ecf0f1;
+            --highlight-color: #f39c12;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            --panel-bg: rgba(44, 62, 80, 0.8);
+            --border-radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" width="100" height="100"/><path fill="rgba(255,255,255,0.05)" d="M0 0L50 0L50 50L0 50Z"/><path fill="rgba(255,255,255,0.05)" d="M50 50L100 50L100 100L50 100Z"/></svg>');
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        /* 顶部导航栏 */
+        .header {
+            background-color: var(--panel-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background-color: rgba(52, 152, 219, 0.2);
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-btn:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .nav-btn.active {
+            background-color: var(--accent-color);
+        }
+        
+        /* 主内容区 */
+        .main-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* 图表面板 */
+        .chart-panel {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            height: 500px;
+            position: relative;
+        }
+        
+        .chart-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chart-title h2 {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-btn {
+            background-color: rgba(52, 152, 219, 0.2);
+            border: none;
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+        
+        .chart-btn:hover {
+            background-color: rgba(52, 152, 219, 0.5);
+        }
+        
+        .chart-container {
+            height: calc(100% - 50px);
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 控制面板 */
+        .control-panel {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .panel-section {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+        
+        .panel-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .panel-section h3 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+            color: var(--highlight-color);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .control-input {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .control-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .range-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .range-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .range-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .range-value {
+            width: 40px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .action-btn.primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .action-btn.secondary {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 数据表格面板 */
+        .data-panel {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-top: 20px;
+            grid-column: span 2;
+        }
+        
+        .data-panel h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .data-table th {
+            background-color: rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            color: var(--highlight-color);
+        }
+        
+        .data-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* 状态指示器 */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-panel {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#3498DB" stroke-width="2"/>
+                <path d="M12 6V12L16 14" stroke="#3498DB" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h1>吸光度测量系统</h1>
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn active">吸光度测量</button>
+            <button class="nav-btn">透过率测量</button>
+            <button class="nav-btn">定量分析</button>
+            <button class="nav-btn">系统设置</button>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <div class="chart-panel">
+            <div class="chart-title">
+                <h2>吸光度光谱图</h2>
+                <div class="chart-controls">
+                    <button class="chart-btn">放大</button>
+                    <button class="chart-btn">重置</button>
+                    <button class="chart-btn">导出</button>
+                </div>
+            </div>
+            <div class="chart-container" id="spectrum-chart">
+                <!-- 这里将通过JavaScript绘制光谱图 -->
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <div class="panel-section">
+                <h3>测量参数</h3>
+                <div class="control-group">
+                    <label for="wavelength">波长范围 (nm)</label>
+                    <div class="range-control">
+                        <input type="range" id="wavelength-min" min="200" max="800" value="400" class="control-input">
+                        <span class="range-value" id="wavelength-min-value">400</span>
+                        <span>-</span>
+                        <input type="range" id="wavelength-max" min="200" max="800" value="700" class="control-input">
+                        <span class="range-value" id="wavelength-max-value">700</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="scan-speed">扫描速度</label>
+                    <select id="scan-speed" class="control-input">
+                        <option value="slow">慢速 (高精度)</option>
+                        <option value="medium" selected>中速</option>
+                        <option value="fast">快速 (低精度)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="sample-name">样品名称</label>
+                    <input type="text" id="sample-name" class="control-input" placeholder="输入样品名称">
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3>设备状态</h3>
+                <div class="control-group">
+                    <div class="status-indicator">
+                        <span class="status-dot"></span>
+                        <span>光源正常</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="lamp-intensity">光源强度</label>
+                    <div class="range-control">
+                        <input type="range" id="lamp-intensity" min="0" max="100" value="80" class="control-input">
+                        <span class="range-value" id="lamp-intensity-value">80%</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="integration-time">积分时间 (ms)</label>
+                    <input type="number" id="integration-time" class="control-input" value="100" min="10" max="1000">
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h3>操作</h3>
+                <div class="action-buttons">
+                    <button class="action-btn primary" id="start-scan">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 3L19 12L5 21V3Z" fill="white"/>
+                        </svg>
+                        开始扫描
+                    </button>
+                    <button class="action-btn secondary" id="stop-scan">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="6" y="6" width="12" height="12" fill="currentColor"/>
+                        </svg>
+                        停止
+                    </button>
+                    <button class="action-btn secondary" id="save-data">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H14L21 10V19C21 20.1046 20.1046 21 19 21Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 3V8H14V3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 16H17" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 13H17" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        保存数据
+                    </button>
+                    <button class="action-btn secondary" id="reset">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C15.3019 3 18.1885 4.77814 19.7545 7.42909" stroke="currentColor" stroke-width="2"/>
+                            <path d="M21 3V9H15" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        重置
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="data-panel">
+            <h2>
+                测量数据
+                <button class="chart-btn">导出CSV</button>
+            </h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>波长 (nm)</th>
+                        <th>吸光度</th>
+                        <th>时间戳</th>
+                        <th>样品ID</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>450</td>
+                        <td>0.254</td>
+                        <td>2023-10-15 14:32:45</td>
+                        <td>样品A-01</td>
+                        <td><button class="chart-btn">查看</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>500</td>
+                        <td>0.312</td>
+                        <td>2023-10-15 14:33:12</td>
+                        <td>样品A-01</td>
+                        <td><button class="chart-btn">查看</button></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>550</td>
+                        <td>0.187</td>
+                        <td>2023-10-15 14:33:40</td>
+                        <td>样品A-01</td>
+                        <td><button class="chart-btn">查看</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // 更新范围滑块的值显示
+        document.getElementById('wavelength-min').addEventListener('input', function() {
+            document.getElementById('wavelength-min-value').textContent = this.value;
+        });
+        
+        document.getElementById('wavelength-max').addEventListener('input', function() {
+            document.getElementById('wavelength-max-value').textContent = this.value;
+        });
+        
+        document.getElementById('lamp-intensity').addEventListener('input', function() {
+            document.getElementById('lamp-intensity-value').textContent = this.value + '%';
+        });
+        
+        // 模拟光谱图绘制
+        // 在实际应用中，这里应该使用Chart.js、D3.js或其他图表库
+        function drawSpectrumChart() {
+            const canvas = document.createElement('canvas');
+            canvas.width = document.getElementById('spectrum-chart').clientWidth;
+            canvas.height = document.getElementById('spectrum-chart').clientHeight;
+            document.getElementById('spectrum-chart').appendChild(canvas);
+            
+            const ctx = canvas.getContext('2d');
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            
+            // 绘制坐标轴
+            ctx.beginPath();
+            ctx.moveTo(40, 20);
+            ctx.lineTo(40, canvas.height - 40);
+            ctx.lineTo(canvas.width - 20, canvas.height - 40);
+            ctx.stroke();
+            
+            // 绘制坐标轴标签
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = '12px Arial';
+            ctx.fillText('吸光度', 10, canvas.height / 2);
+            ctx.fillText('波长 (nm)', canvas.width / 2, canvas.height - 10);
+            
+            // 绘制模拟数据
+            ctx.beginPath();
+            ctx.moveTo(40, canvas.height - 40);
+            
+            // 生成模拟光谱数据
+            const width = canvas.width - 60;
+            const height = canvas.height - 60;
+            const points = 100;
+            
+            for (let i = 0; i <= points; i++) {
+                const x = 40 + (i / points) * width;
+                // 创建一个模拟的光谱曲线
+                const y = (canvas.height - 40) - (
+                    Math.sin(i / points * Math.PI) * 0.5 + 
+                    Math.sin(i / points * Math.PI * 3) * 0.3 +
+                    Math.sin(i / points * Math.PI * 5) * 0.2
+                ) * height * 0.7;
+                
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.stroke();
+            
+            // 添加网格线
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            // 水平网格线
+            for (let i = 1; i < 5; i++) {
+                ctx.beginPath();
+                const y = 20 + (i / 5) * (canvas.height - 60);
+                ctx.moveTo(40, y);
+                ctx.lineTo(canvas.width - 20, y);
+                ctx.stroke();
+            }
+            
+            // 垂直网格线
+            for (let i = 1; i < 10; i++) {
+                ctx.beginPath();
+                const x = 40 + (i / 10) * (canvas.width - 60);
+                ctx.moveTo(x, 20);
+                ctx.lineTo(x, canvas.height - 40);
+                ctx.stroke();
+            }
+        }
+        
+        // 页面加载完成后绘制图表
+        window.addEventListener('load', drawSpectrumChart);
+        
+        // 窗口大小改变时重新绘制图表
+        window.addEventListener('resize', function() {
+            const chartContainer = document.getElementById('spectrum-chart');
+            chartContainer.innerHTML = '';
+            drawSpectrumChart();
+        });
+        
+        // 添加按钮事件监听器
+        document.getElementById('start-scan').addEventListener('click', function() {
+            console.log('开始扫描');
+            // 这里添加扫描逻辑
+        });
+        
+        document.getElementById('stop-scan').addEventListener('click', function() {
+            console.log('停止扫描');
+            // 这里添加停止扫描逻辑
+        });
+        
+        document.getElementById('save-data').addEventListener('click', function() {
+            console.log('保存数据');
+            // 这里添加保存数据逻辑
+        });
+        
+        document.getElementById('reset').addEventListener('click', function() {
+            console.log('重置系统');
+            // 这里添加重置逻辑
+        });
+    </script>
+</body>
+</html>
